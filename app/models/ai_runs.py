@@ -1,25 +1,11 @@
 import uuid
-import enum
 from datetime import datetime
 
 from sqlalchemy import Column, String, Integer, Text, Enum, DateTime, ForeignKey
 from sqlalchemy.dialects.postgresql import UUID, JSONB
 
 from app.core.database import Base
-
-
-class LLMProvider(str, enum.Enum):
-    """Supported LLM providers."""
-    OPENAI = "openai"
-    GEMINI = "gemini"
-    ANTHROPIC = "anthropic"
-
-
-class AIRunStatus(str, enum.Enum):
-    """Status of AI generation run."""
-    PENDING = "pending"
-    COMPLETED = "completed"
-    FAILED = "failed"
+from app.core.constants import LLMProvider, AIRunStatus
 
 
 class AIRun(Base):
