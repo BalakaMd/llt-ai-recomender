@@ -1,6 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import Tuple
-
+from typing import Tuple, Optional, Dict, Any
 
 class BaseLLMClient(ABC):
     """Abstract base class for LLM clients."""
@@ -24,14 +23,22 @@ class OpenAIClient(BaseLLMClient):
         self.client = openai.AsyncOpenAI(api_key=api_key)
         self.model = model
     
-    async def generate(self, system_prompt: str, user_prompt: str) -> Tuple[str, int]:
+    async def generate(self, system_prompt: str, user_prompt: str, json_schema: Optional[Dict[str, Any]] = None) -> Tuple[str, int]:
+        response_format = {
+                "type": "json_schema",
+                "json_schema": {
+                    "name": "response",
+                    "schema": json_schema
+                }
+            }
+
         response = await self.client.chat.completions.create(
             model=self.model,
             messages=[
                 {"role": "system", "content": system_prompt},
                 {"role": "user", "content": user_prompt}
             ],
-            response_format={"type": "json_object"},
+            response_format=response_format,
             temperature=0.7,
         )
         content = response.choices[0].message.content
@@ -50,8 +57,8 @@ class GeminiClient(BaseLLMClient):
             generation_config={"response_mime_type": "application/json"}
         )
     
-    async def generate(self, system_prompt: str, user_prompt: str) -> Tuple[str, int]:
-        full_prompt = f"{system_prompt}\n\n{user_prompt}"
+    async def generate(self, system_prompt: str, user_prompt: str, json_schema: Optional[Dict[str, Any]] = None) -> Tuple[str, int]:
+        full_prompt = f"{system_prompt}\n\n{user_prompt},\n\nJSON SCHEMA: {json.dumps(json_schema, ensure_ascii=False, indent=2)}"
         response = await self.model.generate_content_async(full_prompt)
         return response.text, 0
 
@@ -64,12 +71,13 @@ class AnthropicClient(BaseLLMClient):
         self.client = anthropic.AsyncAnthropic(api_key=api_key)
         self.model = model
     
-    async def generate(self, system_prompt: str, user_prompt: str) -> Tuple[str, int]:
+    async def generate(self, system_prompt: str, user_prompt: str, json_schema: Optional[Dict[str, Any]] = None) -> Tuple[str, int]:
         response = await self.client.messages.create(
             model=self.model,
             max_tokens=4096,
             system=system_prompt,
-            messages=[{"role": "user", "content": user_prompt}]
+            messages=[{"role": "user", "content": user_prompt}],
+            json_schema=json_schema,
         )
         content = response.content[0].text
         tokens = response.usage.input_tokens + response.usage.output_tokens

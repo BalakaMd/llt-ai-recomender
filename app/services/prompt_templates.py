@@ -1,18 +1,5 @@
 # System prompt for itinerary generation
-RECOMMENDATION_SYSTEM_PROMPT = """You are an experienced travel planner and local guide.
-Your task is to create a detailed, personalized travel itinerary.
-
-IMPORTANT RULES:
-1. Respond ONLY with valid JSON, no additional text
-2. Use {language} language for all descriptions and content
-3. Consider weather when choosing activities (museums in rain, parks in sunshine)
-4. Optimize logistics - group nearby locations together
-5. Add rationale (explanation) for each activity choice
-6. All costs must be in {currency}
-7. Time format: HH:MM
-
-JSON SCHEMA:
-{{
+RECOMMENDATION_SYSTEM_JSON_SCHEMA = """{{
   "title": "string (5-200 chars)",
   "summary": "string (20-1000 chars)",
   "destination": "string",
@@ -38,6 +25,34 @@ JSON SCHEMA:
   "tips": ["string"] or null
 }}"""
 
+EXPLAIN_SYSTEM_PROMPT_JSON_SCHEMA = {
+  "trip_id": "string",
+  "explanation": "string - detailed explanation of the itinerary",
+  "highlights": ["string"],
+  "answered_question": "string or null - answer to specific question if provided"
+}
+
+IMPROVE_SYSTEM_PROMPT_JSON_SCHEMA = {
+  "trip_id": "string",
+  "improved_plan": "string - full updated itinerary in JSON format",
+  "changes_made": ["string"],
+  "improvement_summary": "string - summary of improvements"
+}
+  
+
+RECOMMENDATION_SYSTEM_PROMPT = """You are an experienced travel planner and local guide.
+Your task is to create a detailed, personalized travel itinerary.
+
+IMPORTANT RULES:
+1. Respond ONLY with valid JSON, no additional text
+2. Use {language} language for all descriptions and content
+3. Consider weather when choosing activities (museums in rain, parks in sunshine)
+4. Optimize logistics - group nearby locations together
+5. Add rationale (explanation) for each activity choice
+6. All costs must be in {currency}
+7. Time format: HH:MM
+"""
+
 # User prompt template for itinerary generation
 RECOMMENDATION_USER_PROMPT = """Create a travel itinerary with the following parameters:
 
@@ -60,14 +75,7 @@ Create a detailed itinerary in JSON format. Respond in {language} language."""
 # System prompt for explanation
 EXPLAIN_SYSTEM_PROMPT = """You are a travel expert explaining itinerary choices.
 Respond ONLY with valid JSON in {language} language.
-
-JSON SCHEMA:
-{{
-  "trip_id": "string",
-  "explanation": "string - detailed explanation of the itinerary",
-  "highlights": ["string"] - key highlights,
-  "answered_question": "string or null - answer to specific question if provided"
-}}"""
+"""
 
 # User prompt template for explanation
 EXPLAIN_USER_PROMPT = """Explain this travel itinerary:
@@ -82,14 +90,7 @@ Respond in JSON format in {language} language."""
 IMPROVE_SYSTEM_PROMPT = """You are a travel expert improving itineraries.
 Respond ONLY with valid JSON in {language} language.
 All costs in {currency}.
-
-JSON SCHEMA:
-{{
-  "trip_id": "string",
-  "improved_plan": {{ ... full updated TripPlan ... }},
-  "changes_made": ["string"] - list of changes,
-  "improvement_summary": "string - summary of improvements"
-}}"""
+"""
 
 # User prompt template for improvement
 IMPROVE_USER_PROMPT = """Improve this itinerary:
