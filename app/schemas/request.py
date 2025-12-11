@@ -1,6 +1,7 @@
 from pydantic import BaseModel, Field, field_validator
 from typing import List, Optional
 from datetime import date
+from uuid import UUID
 
 
 class UserPreferences(BaseModel):
@@ -131,8 +132,8 @@ class RecommendationRequest(BaseModel):
 class ExplainRequest(BaseModel):
     """Request model for explaining a trip plan."""
     
-    user_id: str = Field(..., description="User UUID")
-    trip_id: str = Field(..., description="Trip UUID to explain")
+    user_id: UUID = Field(..., description="User UUID")
+    trip_id: UUID = Field(..., description="Trip UUID to explain")
     trip_plan: dict = Field(..., description="Trip plan JSON to explain")
     question: Optional[str] = Field(
         default=None,
@@ -145,8 +146,8 @@ class ExplainRequest(BaseModel):
 class ImproveRequest(BaseModel):
     """Request model for improving an existing trip plan."""
     
-    user_id: str = Field(..., description="User UUID")
-    trip_id: str = Field(..., description="Trip UUID to improve")
+    user_id: UUID = Field(..., description="User UUID")
+    trip_id: UUID = Field(..., description="Trip UUID to improve")
     current_plan: dict = Field(
         ...,
         description="Current trip plan JSON"

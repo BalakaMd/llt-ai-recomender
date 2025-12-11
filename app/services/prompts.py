@@ -6,6 +6,7 @@ from app.services.prompt_templates import (
     RECOMMENDATION_SYSTEM_JSON_SCHEMA,
     RECOMMENDATION_USER_PROMPT,
     EXPLAIN_SYSTEM_PROMPT,
+    EXPLAIN_SYSTEM_PROMPT_JSON_SCHEMA,
     EXPLAIN_USER_PROMPT,
     IMPROVE_SYSTEM_PROMPT,
     IMPROVE_USER_PROMPT,
@@ -73,7 +74,10 @@ class PromptBuilder:
         
         question_context = f"USER QUESTION: {question}" if question else "Provide a general explanation of the itinerary."
         
-        system_prompt = EXPLAIN_SYSTEM_PROMPT.format(language=language)
+        system_prompt = EXPLAIN_SYSTEM_PROMPT.format(
+            language=language,
+            json_schema=EXPLAIN_SYSTEM_PROMPT_JSON_SCHEMA,
+        )
         
         user_prompt = EXPLAIN_USER_PROMPT.format(
             trip_plan=json.dumps(trip_plan, ensure_ascii=False, indent=2),

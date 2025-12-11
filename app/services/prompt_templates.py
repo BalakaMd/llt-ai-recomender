@@ -25,19 +25,17 @@ RECOMMENDATION_SYSTEM_JSON_SCHEMA = """{{
   "tips": ["string"] - REQUIRED (at least 2 tips)
 }}"""
 
-EXPLAIN_SYSTEM_PROMPT_JSON_SCHEMA = {
-  "trip_id": "string",
-  "explanation": "string - detailed explanation of the itinerary",
-  "highlights": ["string"],
+EXPLAIN_SYSTEM_PROMPT_JSON_SCHEMA = """{
+  "explanation": "string - detailed text explanation of the itinerary (REQUIRED)",
+  "highlights": ["string"] - list of 3-5 key highlights (REQUIRED),
   "answered_question": "string or null - answer to specific question if provided"
-}
+}"""
 
-IMPROVE_SYSTEM_PROMPT_JSON_SCHEMA = {
-  "trip_id": "string",
-  "improved_plan": "string - full updated itinerary in JSON format",
-  "changes_made": ["string"],
-  "improvement_summary": "string - summary of improvements"
-}
+IMPROVE_SYSTEM_PROMPT_JSON_SCHEMA = """{
+  "improved_plan": <full TripPlan object with all fields>,
+  "changes_made": ["string"] - list of specific changes made (REQUIRED),
+  "improvement_summary": "string - brief summary of improvements (REQUIRED)"
+}"""
   
 
 RECOMMENDATION_SYSTEM_PROMPT = """You are an experienced travel planner and local guide.
@@ -89,6 +87,11 @@ Create a detailed itinerary in JSON format. Respond in {language} language."""
 # System prompt for explanation
 EXPLAIN_SYSTEM_PROMPT = """You are a travel expert explaining itinerary choices.
 Respond ONLY with valid JSON in {language} language.
+
+REQUIRED JSON SCHEMA:
+{json_schema}
+
+IMPORTANT: "explanation" must be a single string with detailed text, NOT an object.
 """
 
 # User prompt template for explanation
@@ -98,7 +101,12 @@ EXPLAIN_USER_PROMPT = """Explain this travel itinerary:
 
 {question_context}
 
-Respond in JSON format in {language} language."""
+Respond with a JSON object containing:
+- "explanation": a detailed TEXT string explaining the itinerary
+- "highlights": array of 3-5 key highlights as strings
+- "answered_question": answer to the question if provided, or null
+
+Respond in {language} language."""
 
 # System prompt for improvement
 IMPROVE_SYSTEM_PROMPT = """You are a travel expert improving itineraries.

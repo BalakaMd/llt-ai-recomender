@@ -91,10 +91,10 @@ class RecommendationService:
         """Explain a specific trip plan."""
         
         run = await self.telemetry.create_run(
-            user_id=request.user_id,
+            user_id=str(request.user_id),
             provider=self.llm.provider,
             prompt=f"Explain trip {request.trip_id}: {request.question or 'General explanation'}",
-            trip_id=request.trip_id
+            trip_id=str(request.trip_id)
         )
         
         try:
@@ -134,10 +134,10 @@ class RecommendationService:
         """Improve an existing travel itinerary."""
         
         run = await self.telemetry.create_run(
-            user_id=request.user_id,
+            user_id=str(request.user_id),
             provider=self.llm.provider,
             prompt=f"Improve trip {request.trip_id}: {request.improvement_request}",
-            trip_id=request.trip_id
+            trip_id=str(request.trip_id)
         )
         
         try:

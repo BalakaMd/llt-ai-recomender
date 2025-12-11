@@ -158,7 +158,6 @@ class TripPlan(BaseModel):
 class ExplainResponse(BaseModel):
     """Response for /explain endpoint."""
     
-    trip_id: str = Field(..., description="Trip UUID")
     explanation: str = Field(
         ...,
         description="Detailed explanation of the trip plan"
@@ -176,7 +175,6 @@ class ExplainResponse(BaseModel):
 class ImproveResponse(BaseModel):
     """Response for /improve endpoint."""
     
-    trip_id: str = Field(..., description="Trip UUID")
     improved_plan: TripPlan = Field(
         ...,
         description="Improved trip plan"
