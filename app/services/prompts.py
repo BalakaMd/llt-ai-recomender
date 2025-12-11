@@ -3,6 +3,7 @@ from typing import List, Dict, Any, Optional
 
 from app.services.prompt_templates import (
     RECOMMENDATION_SYSTEM_PROMPT,
+    RECOMMENDATION_SYSTEM_JSON_SCHEMA,
     RECOMMENDATION_USER_PROMPT,
     EXPLAIN_SYSTEM_PROMPT,
     EXPLAIN_USER_PROMPT,
@@ -38,9 +39,11 @@ class PromptBuilder:
         if pois:
             pois_context = f"\nAVAILABLE PLACES (Points of Interest):\n{json.dumps(pois[:15], ensure_ascii=False, indent=2)}"
         
+        json_schema = RECOMMENDATION_SYSTEM_JSON_SCHEMA.format(currency=currency)
         system_prompt = RECOMMENDATION_SYSTEM_PROMPT.format(
             language=language,
             currency=currency,
+            json_schema=json_schema,
         )
         
         user_prompt = RECOMMENDATION_USER_PROMPT.format(

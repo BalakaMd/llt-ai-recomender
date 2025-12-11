@@ -1,28 +1,28 @@
 # System prompt for itinerary generation
 RECOMMENDATION_SYSTEM_JSON_SCHEMA = """{{
-  "title": "string (5-200 chars)",
-  "summary": "string (20-1000 chars)",
-  "destination": "string",
-  "total_budget_estimate": number,
-  "currency": "{currency}",
-  "duration_days": number (1-15),
+  "title": "string (5-200 chars) - REQUIRED",
+  "summary": "string (20-1000 chars) - REQUIRED",
+  "destination": "string - REQUIRED",
+  "total_budget_estimate": number - REQUIRED,
+  "currency": "{currency}" - REQUIRED,
+  "duration_days": number (1-15) - REQUIRED,
   "itinerary": [
     {{
-      "day_index": number (1-indexed),
-      "order_index": number (1-indexed within day),
-      "title": "string",
-      "description": "string (10-1000 chars)",
-      "place_name": "string",
-      "coordinates": {{"lat": number, "lng": number}} or null,
-      "estimated_cost": number or null,
-      "duration_minutes": number (15-480) or null,
-      "start_time": "HH:MM" or null,
-      "category": "string (food/culture/nature/history/shopping/nightlife)",
-      "rationale": "string (10-500 chars) - why this place was chosen"
+      "day_index": number (1-indexed) - REQUIRED,
+      "order_index": number (1-indexed within day) - REQUIRED,
+      "title": "string" - REQUIRED,
+      "description": "string (10-1000 chars)" - REQUIRED,
+      "place_name": "string" - REQUIRED,
+      "coordinates": {{"lat": number, "lng": number}} - REQUIRED (use real coordinates),
+      "estimated_cost": number - REQUIRED (estimate if unknown),
+      "duration_minutes": number (15-480) - REQUIRED,
+      "start_time": "HH:MM" - REQUIRED,
+      "category": "food" | "culture" | "nature" | "history" | "shopping" | "nightlife" - REQUIRED,
+      "rationale": "string (10-500 chars)" - REQUIRED
     }}
   ],
-  "tags": ["string"],
-  "tips": ["string"] or null
+  "tags": ["string"] - REQUIRED (at least 3 tags),
+  "tips": ["string"] - REQUIRED (at least 2 tips)
 }}"""
 
 EXPLAIN_SYSTEM_PROMPT_JSON_SCHEMA = {
@@ -43,14 +43,22 @@ IMPROVE_SYSTEM_PROMPT_JSON_SCHEMA = {
 RECOMMENDATION_SYSTEM_PROMPT = """You are an experienced travel planner and local guide.
 Your task is to create a detailed, personalized travel itinerary.
 
-IMPORTANT RULES:
-1. Respond ONLY with valid JSON, no additional text
-2. Use {language} language for all descriptions and content
-3. Consider weather when choosing activities (museums in rain, parks in sunshine)
-4. Optimize logistics - group nearby locations together
-5. Add rationale (explanation) for each activity choice
-6. All costs must be in {currency}
-7. Time format: HH:MM
+CRITICAL RULES:
+1. You MUST use ONLY places from the PROVIDED "AVAILABLE PLACES" list below
+2. Copy coordinates (lat, lng) EXACTLY from the provided POI data - DO NOT invent coordinates
+3. Use the price_uah from POI data as estimated_cost
+4. Fill ALL fields - NO null values allowed
+5. Respond ONLY with valid JSON, no additional text
+6. Use {language} language for all descriptions and content
+7. Consider weather when choosing activities (museums in rain, parks in sunshine)
+8. Optimize logistics - group nearby locations together
+9. Add rationale (explanation) for each activity choice
+10. All costs must be in {currency}
+11. Time format: HH:MM (plan realistic times: breakfast 09:00, lunch 13:00, dinner 19:00)
+12. Duration: 60-180 minutes per activity
+
+REQUIRED JSON SCHEMA:
+{json_schema}
 """
 
 # User prompt template for itinerary generation
@@ -69,6 +77,12 @@ TRIP CONSTRAINTS:
 - Number of travelers: {party_size}
 {weather_context}
 {pois_context}
+
+IMPORTANT: 
+- Select places ONLY from the AVAILABLE PLACES list above
+- Copy the exact lat/lng coordinates from each POI
+- Use price_uah as estimated_cost
+- Plan 3-5 activities per day with realistic timing
 
 Create a detailed itinerary in JSON format. Respond in {language} language."""
 
