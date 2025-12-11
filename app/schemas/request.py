@@ -133,6 +133,7 @@ class ExplainRequest(BaseModel):
     
     user_id: str = Field(..., description="User UUID")
     trip_id: str = Field(..., description="Trip UUID to explain")
+    trip_plan: dict = Field(..., description="Trip plan JSON to explain")
     question: Optional[str] = Field(
         default=None,
         description="Specific question about the trip",

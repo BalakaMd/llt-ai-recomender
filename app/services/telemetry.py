@@ -9,10 +9,10 @@ from app.models.ai_runs import AIRun, AIRunStatus, LLMProvider
 
 class TelemetryService:
     """Service for managing AI run telemetry/logging."""
-    
+
     def __init__(self, db: AsyncSession):
         self.db = db
-    
+
     async def create_run(
         self,
         user_id: str,
@@ -34,7 +34,7 @@ class TelemetryService:
         await self.db.commit()
         await self.db.refresh(ai_run)
         return ai_run
-    
+
     async def complete_run(
         self,
         run_id: uuid.UUID,
@@ -51,7 +51,7 @@ class TelemetryService:
             await self.db.commit()
             await self.db.refresh(ai_run)
         return ai_run
-    
+
     async def fail_run(
         self,
         run_id: uuid.UUID,
