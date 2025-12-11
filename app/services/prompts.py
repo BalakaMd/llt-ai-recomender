@@ -9,6 +9,7 @@ from app.services.prompt_templates import (
     EXPLAIN_SYSTEM_PROMPT_JSON_SCHEMA,
     EXPLAIN_USER_PROMPT,
     IMPROVE_SYSTEM_PROMPT,
+    IMPROVE_SYSTEM_PROMPT_JSON_SCHEMA,
     IMPROVE_USER_PROMPT,
 )
 
@@ -101,9 +102,11 @@ class PromptBuilder:
         if constraints:
             constraints_context = f"\nNEW CONSTRAINTS:\n{json.dumps(constraints, ensure_ascii=False, indent=2)}"
         
+        json_schema = IMPROVE_SYSTEM_PROMPT_JSON_SCHEMA.format(currency=currency)
         system_prompt = IMPROVE_SYSTEM_PROMPT.format(
             language=language,
             currency=currency,
+            json_schema=json_schema,
         )
         
         user_prompt = IMPROVE_USER_PROMPT.format(

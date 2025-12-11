@@ -143,6 +143,18 @@ class ExplainRequest(BaseModel):
     )
 
 
+class PartialTripConstraints(BaseModel):
+    """Partial trip constraints for improvement requests."""
+    
+    origin_city: Optional[str] = Field(default=None, max_length=100)
+    destination_city: Optional[str] = Field(default=None, max_length=100)
+    start_date: Optional[date] = Field(default=None)
+    end_date: Optional[date] = Field(default=None)
+    duration_days: Optional[int] = Field(default=None, ge=1, le=15)
+    total_budget: Optional[int] = Field(default=None, ge=0)
+    travel_party_size: Optional[int] = Field(default=None, ge=1, le=20)
+
+
 class ImproveRequest(BaseModel):
     """Request model for improving an existing trip plan."""
     
@@ -159,7 +171,7 @@ class ImproveRequest(BaseModel):
         max_length=1000,
         examples=["Додай більше ресторанів української кухні"]
     )
-    constraints: Optional[TripConstraints] = Field(
+    constraints: Optional[PartialTripConstraints] = Field(
         default=None,
-        description="Updated constraints (optional)"
+        description="Updated constraints (optional, all fields optional)"
     )

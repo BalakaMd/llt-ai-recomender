@@ -31,11 +31,35 @@ EXPLAIN_SYSTEM_PROMPT_JSON_SCHEMA = """{
   "answered_question": "string or null - answer to specific question if provided"
 }"""
 
-IMPROVE_SYSTEM_PROMPT_JSON_SCHEMA = """{
-  "improved_plan": <full TripPlan object with all fields>,
+IMPROVE_SYSTEM_PROMPT_JSON_SCHEMA = """{{
+  "improved_plan": {{
+    "title": "string",
+    "summary": "string",
+    "destination": "string",
+    "total_budget_estimate": number,
+    "currency": "{currency}",
+    "duration_days": number,
+    "itinerary": [
+      {{
+        "day_index": number (1-indexed),
+        "order_index": number (1-indexed within day),
+        "title": "string",
+        "description": "string",
+        "place_name": "string",
+        "coordinates": {{"lat": number, "lng": number}},
+        "estimated_cost": number,
+        "duration_minutes": number,
+        "start_time": "HH:MM",
+        "category": "food" | "culture" | "nature" | "history" | "shopping" | "nightlife",
+        "rationale": "string"
+      }}
+    ],
+    "tags": ["string"],
+    "tips": ["string"]
+  }},
   "changes_made": ["string"] - list of specific changes made (REQUIRED),
   "improvement_summary": "string - brief summary of improvements (REQUIRED)"
-}"""
+}}"""
   
 
 RECOMMENDATION_SYSTEM_PROMPT = """You are an experienced travel planner and local guide.
@@ -112,6 +136,9 @@ Respond in {language} language."""
 IMPROVE_SYSTEM_PROMPT = """You are a travel expert improving itineraries.
 Respond ONLY with valid JSON in {language} language.
 All costs in {currency}.
+
+REQUIRED JSON SCHEMA:
+{json_schema}
 """
 
 # User prompt template for improvement
@@ -124,8 +151,12 @@ IMPROVEMENT REQUEST:
 {improvement_request}
 {constraints_context}
 
-Respond in JSON format with the complete updated itinerary in {language} language.
-All costs in {currency}."""
+Respond with a JSON object containing:
+- "improved_plan": the COMPLETE improved TripPlan object (with all fields: title, summary, destination, total_budget_estimate, currency, duration_days, itinerary array, tags, tips)
+- "changes_made": array of strings describing each change
+- "improvement_summary": brief summary of improvements
+
+Respond in {language} language. All costs in {currency}."""
 
 ERROR_SYSTEM_PROMPT = """Your previous response had validation errors:
 
