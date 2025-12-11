@@ -110,7 +110,7 @@ ERROR_SYSTEM_PROMPT = """Your previous response had validation errors:
 ERROR: {error}
 
 INVALID RESPONSE:
-{invalid_response[:1000]}...
+{invalid_response}
 
 Please fix the errors and return a valid JSON response that matches the required schema.
 All required fields must be present and have correct types."""

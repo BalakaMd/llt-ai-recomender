@@ -4,7 +4,8 @@ from typing import Optional
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.models.ai_runs import AIRun, AIRunStatus, LLMProvider
+from app.models.ai_runs import AIRun
+from app.core.constants import LLMProvider
 
 
 class TelemetryService:
@@ -25,9 +26,9 @@ class TelemetryService:
             id=uuid.uuid4(),
             user_id=uuid.UUID(user_id),
             trip_id=uuid.UUID(trip_id) if trip_id else None,
-            provider=provider,
+            provider=provider.value,
             prompt=prompt,
-            status=AIRunStatus.PENDING,
+            status='pending',
             created_at=datetime.utcnow(),
         )
         self.db.add(ai_run)
@@ -46,7 +47,7 @@ class TelemetryService:
         if ai_run:
             ai_run.response = response
             ai_run.tokens_used = tokens_used
-            ai_run.status = AIRunStatus.COMPLETED
+            ai_run.status = 'completed'  # Use string value for PostgreSQL ENUM
             ai_run.updated_at = datetime.utcnow()
             await self.db.commit()
             await self.db.refresh(ai_run)
@@ -60,7 +61,7 @@ class TelemetryService:
         """Mark AI run as failed with error message."""
         ai_run = await self.db.get(AIRun, run_id)
         if ai_run:
-            ai_run.status = AIRunStatus.FAILED
+            ai_run.status = 'failed'  # Use string value for PostgreSQL ENUM
             ai_run.error_message = error_message
             ai_run.updated_at = datetime.utcnow()
             await self.db.commit()
