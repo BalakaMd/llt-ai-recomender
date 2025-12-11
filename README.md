@@ -9,74 +9,119 @@ AI-powered travel itinerary recommender service for LittleLifeTrip.
 - Improve existing itineraries based on user feedback
 - JWT authentication for service-to-service communication
 - Async PostgreSQL with SQLAlchemy
+- Telemetry & Logging of all AI interactions
 
 ## Quick Start
 
 ### Local Development
 
+1. **Clone and navigate**
+   ```bash
+   cd llt-ai-recomender
+   ```
+
+2. **Create virtual environment**
+   ```bash
+   python -m venv venv
+   source venv/bin/activate  # On Windows: venv\Scripts\activate
+   ```
+
+3. **Install dependencies**
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+4. **Configure environment**
+   ```bash
+   cp .env.example .env
+   # Edit .env with your API keys and DB credentials
+   ```
+
+5. **Start Database (Docker)**
+   ```bash
+   docker-compose up -d db
+   ```
+
+6. **Run Migrations**
+   ```bash
+   alembic upgrade head
+   ```
+
+7. **Run the Server**
+   ```bash
+   uvicorn app.main:app --reload
+   ```
+
+### Docker Full Setup
+
 ```bash
-# 1. Clone and navigate
-cd llt-ai-recomender
-
-# 2. Create virtual environment
-python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
-
-# 3. Install dependencies
-pip install -r requirements.txt
-
-# 4. Configure environment
-cp .env.example .env
-# Edit .env with your API keys
-
-# 5. Run the server
-uvicorn app.main:app --reload
-```
-
-### Docker
-
-```bash
-# Start with Docker Compose
-docker-compose up -d
-
-# Run migrations
+docker-compose up -d --build
 docker-compose exec llt-ai-recomender alembic upgrade head
 ```
 
-## API Endpoints
+## API Documentation
 
-| Endpoint | Method | Description |
-|----------|--------|-------------|
-| `/health` | GET | Health check |
-| `/internal/v1/ai/recommend` | POST | Generate itinerary |
-| `/internal/v1/ai/explain` | POST | Explain itinerary |
-| `/internal/v1/ai/improve` | POST | Improve itinerary |
+Swagger UI available at: `http://localhost:8000/docs`
+
+### Key Endpoints
+
+#### `POST /internal/v1/ai/recommend`
+Generate new itinerary.
+```json
+{
+  "user_id": "uuid",
+  "user_profile": { "interests": ["food"], "transport_modes": ["walking"] },
+  "constraints": { "origin_city": "Kyiv", "duration_days": 2 }
+}
+```
+
+#### `POST /internal/v1/ai/explain`
+Explain details of a trip.
+```json
+{
+  "user_id": "uuid",
+  "trip_id": "uuid",
+  "trip_plan": { ... },
+  "question": "Why this hotel?"
+}
+```
+
+#### `POST /internal/v1/ai/improve`
+Modify existing itinerary.
+```json
+{
+  "user_id": "uuid",
+  "trip_id": "uuid",
+  "current_plan": { ... },
+  "improvement_request": "Add more museums"
+}
+```
 
 ## Project Structure
 
 ```
 llt-ai-recomender/
 ├── app/
-│   ├── main.py              # FastAPI application
-│   ├── core/                # Configuration & database
-│   ├── models/              # SQLAlchemy models
-│   ├── schemas/             # Pydantic schemas
-│   ├── services/            # Business logic
-│   └── api/                 # API routes
-├── alembic/                 # Database migrations
-├── requirements.txt
-├── Dockerfile
-└── docker-compose.yml
+│   ├── main.py              # Application entry point
+│   ├── api/                 # API Routes & Dependencies
+│   ├── core/                # Config, DB, Constants
+│   ├── models/              # SQLAlchemy Database Models
+│   ├── schemas/             # Pydantic Data Schemas
+│   └── services/            # Business Logic (LLM, Telemetry, Recommendation)
+├── alembic/                 # Migrations
+├── requirements.txt         # Dependencies
+├── compose.yml              # Docker Compose
+└── llt-ai-recomender.postman_collection.json
 ```
 
 ## Environment Variables
 
-| Variable | Description | Required |
-|----------|-------------|----------|
-| `DATABASE_URL` | PostgreSQL connection string | Yes |
-| `OPENAI_API_KEY` | OpenAI API key | At least one LLM key |
-| `GEMINI_API_KEY` | Google Gemini API key | At least one LLM key |
-| `ANTHROPIC_API_KEY` | Anthropic API key | At least one LLM key |
-| `JWT_SECRET_KEY` | Secret key for JWT | Yes |
-| `DEFAULT_LLM_PROVIDER` | Default provider (openai/gemini/anthropic) | No (default: openai) |
-
+| Variable | Description | Default |
+|----------|-------------|---------|
+| `DATABASE_URL` | Postgres connection string | required |
+| `JWT_SECRET_KEY` | Secret for verifying tokens | required |
+| `OPENAI_API_KEY` | Key for OpenAI | optional |
+| `GEMINI_API_KEY` | Key for Google Gemini | optional |
+| `ANTHROPIC_API_KEY` | Key for Anthropic Claude | optional |
+| `DEFAULT_LLM_PROVIDER`| openai / gemini / anthropic | openai |
+| `DEBUG` | Enable debug mode | False |
