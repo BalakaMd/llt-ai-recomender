@@ -4,11 +4,11 @@ services:
     ports:
       - "8000:8000"
     environment:
-      - DATABASE_URL=postgresql+asyncpg://user:password@db:5432/llt_db
+      - DATABASE_URL=postgresql+asyncpg://user:password@db:5432/llt_ai_recommender
       - OPENAI_API_KEY=${OPENAI_API_KEY}
       - GEMINI_API_KEY=${GEMINI_API_KEY}
       - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
-      - DEFAULT_LLM_PROVIDER=openai
+      - DEFAULT_LLM_PROVIDER=${DEFAULT_LLM_PROVIDER}
       - JWT_SECRET_KEY=${JWT_SECRET_KEY}
       - DEBUG=${DEBUG}
     depends_on:
@@ -22,7 +22,7 @@ services:
     environment:
       - POSTGRES_USER=user
       - POSTGRES_PASSWORD=password
-      - POSTGRES_DB=llt_db
+      - POSTGRES_DB=llt_ai_recommender
     ports:
       - "5434:5432"
     volumes:
