@@ -2,7 +2,7 @@ services:
   ai-recommender:
     build: .
     ports:
-      - "8000:8000"
+      - '8000:8000'
     environment:
       - DATABASE_URL=postgresql+asyncpg://user:password@db:5432/llt_ai_recommender
       - OPENAI_API_KEY=${OPENAI_API_KEY}
@@ -11,6 +11,7 @@ services:
       - DEFAULT_LLM_PROVIDER=${DEFAULT_LLM_PROVIDER}
       - JWT_SECRET_KEY=${JWT_SECRET_KEY}
       - DEBUG=${DEBUG}
+      - INTEGRATION_SERVICE_URL=${INTEGRATION_SERVICE_URL}
     depends_on:
       - db
     volumes:
@@ -24,7 +25,7 @@ services:
       - POSTGRES_PASSWORD=password
       - POSTGRES_DB=llt_ai_recommender
     ports:
-      - "5434:5432"
+      - '5434:5432'
     volumes:
       - postgres_data:/var/lib/postgresql/data
 

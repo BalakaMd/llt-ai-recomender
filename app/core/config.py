@@ -18,6 +18,9 @@ class Settings(BaseSettings):
     JWT_SECRET_KEY: str
     JWT_ALGORITHM: str = "HS256"
     
+    # Integration Service
+    INTEGRATION_SERVICE_URL: str
+    
     # App Settings
     DEBUG: bool = False
     

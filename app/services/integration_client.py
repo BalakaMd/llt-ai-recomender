@@ -2,6 +2,8 @@ from datetime import date
 from typing import List, Optional
 import httpx
 
+from app.core.config import settings
+
 
 class IntegrationClient:
     """
@@ -9,8 +11,8 @@ class IntegrationClient:
     Replaces MockIntegrationClient with real API calls.
     """
     
-    def __init__(self, base_url: str = "http://localhost:3003/api/v1/integrations"):
-        self.base_url = base_url
+    def __init__(self, base_url: Optional[str] = None):
+        self.base_url = base_url or settings.INTEGRATION_SERVICE_URL
         self.client = httpx.AsyncClient(timeout=30.0)
     
     async def get_weather(
