@@ -5,7 +5,7 @@ from fastapi import BackgroundTasks
 from app.schemas.request import RecommendationRequest, ExplainRequest, ImproveRequest
 from app.schemas.response import TripPlan, ExplainResponse, ImproveResponse
 from app.services.telemetry import TelemetryService
-from app.services.integration_client import MockIntegrationClient
+from app.services.integration_client import IntegrationClient
 from app.services.llm_engine import LLMEngine
 from app.services.prompts import PromptBuilder
 
@@ -16,7 +16,7 @@ class RecommendationService:
     def __init__(
         self,
         telemetry: TelemetryService,
-        integration: MockIntegrationClient,
+        integration: IntegrationClient,
         llm: LLMEngine,
     ):
         self.telemetry = telemetry

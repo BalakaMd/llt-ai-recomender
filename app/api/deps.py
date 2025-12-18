@@ -8,7 +8,7 @@ from app.core.database import AsyncSessionLocal
 from app.core.config import settings
 from app.services import RecommendationService
 from app.services.telemetry import TelemetryService
-from app.services.integration_client import MockIntegrationClient
+from app.services.integration_client import IntegrationClient
 from app.services.llm_engine import LLMEngine
 
 
@@ -60,9 +60,9 @@ def get_telemetry_service(db: AsyncSession = Depends(get_db)) -> TelemetryServic
     return TelemetryService(db)
 
 
-def get_integration_client() -> MockIntegrationClient:
+def get_integration_client() -> IntegrationClient:
     """Integration client dependency."""
-    return MockIntegrationClient()
+    return IntegrationClient()
 
 
 def get_llm_engine() -> LLMEngine:
@@ -72,7 +72,7 @@ def get_llm_engine() -> LLMEngine:
 
 def get_recommendation_service(
     telemetry: TelemetryService = Depends(get_telemetry_service),
-    integration: MockIntegrationClient = Depends(get_integration_client),
+    integration: IntegrationClient = Depends(get_integration_client),
     llm: LLMEngine = Depends(get_llm_engine),
 ) -> RecommendationService:
     """Recommendation service dependency."""
