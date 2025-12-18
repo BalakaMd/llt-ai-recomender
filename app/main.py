@@ -8,8 +8,8 @@ app = FastAPI(
     title="AI Recommender Service",
     description="AI-powered travel itinerary recommender service for LittleLifeTrip",
     version="0.1.0",
-    docs_url="/docs" if settings.DEBUG else None,
-    redoc_url="/redoc" if settings.DEBUG else None,
+    docs_url="/recommender/docs" if settings.DEBUG else None,
+    redoc_url="/recommender/redoc" if settings.DEBUG else None,
 )
 
 # CORS middleware (for internal service communication)
@@ -28,7 +28,7 @@ from app.api.routes import router as api_router
 app.include_router(api_router)
 
 
-@app.get("/health", tags=["Health"])
+@app.get("/recommender/health", tags=["Health"])
 async def health_check():
     """Health check endpoint for service monitoring."""
     return {"status": "ok", "service": "ai-recommender-service"}
