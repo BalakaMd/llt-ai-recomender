@@ -3,29 +3,26 @@ services:
     build: .
     ports:
       - '8000:8000'
-    environment:
-      - DATABASE_URL=postgresql+asyncpg://user:password@db:5432/llt_ai_recommender
-      - OPENAI_API_KEY=${OPENAI_API_KEY}
-      - GEMINI_API_KEY=${GEMINI_API_KEY}
-      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
-      - DEFAULT_LLM_PROVIDER=${DEFAULT_LLM_PROVIDER}
-      - JWT_SECRET_KEY=${JWT_SECRET_KEY}
-      - DEBUG=${DEBUG}
-      - INTEGRATION_SERVICE_URL=${INTEGRATION_SERVICE_URL}
+    env_file:
+      - .env
     depends_on:
-      - db
+      postgres_db:
+        condition: service_healthy
     volumes:
       - .:/app
     command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
 
-  db:
+  postgres_db:
     image: postgres:15-alpine
-    environment:
-      - POSTGRES_USER=user
-      - POSTGRES_PASSWORD=password
-      - POSTGRES_DB=llt_ai_recommender
+    env_file:
+      - .env
     ports:
       - '5434:5432'
+    healthcheck:
+      test: ["CMD-SHELL","pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
