@@ -1,5 +1,6 @@
 services:
   ai-recommender:
+    container_name: ai-recommender
     build: .
     ports:
       - '8000:8000'
@@ -11,8 +12,11 @@ services:
     volumes:
       - .:/app
     command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+    networks:
+      - llt-net
 
   postgres_db:
+    container_name: postgres_db
     image: postgres:15-alpine
     env_file:
       - .env
@@ -25,6 +29,13 @@ services:
       retries: 5
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    networks:
+      - llt-net
 
 volumes:
   postgres_data:
+
+networks:
+  llt-net:
+    external: true
+    name: llt-net
