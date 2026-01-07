@@ -5,7 +5,7 @@ echo "Starting AI Recommender Service..."
 
 # Wait for database to be ready
 echo "Waiting for database connection..."
-while ! nc -z ${POSTGRES_HOST:-localhost} ${POSTGRES_PORT:-5432}; do
+while ! nc -z ${DB_HOST:-localhost} ${DB_PORT:-5432}; do
   echo "Database is unavailable - sleeping"
   sleep 1
 done
