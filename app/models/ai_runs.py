@@ -1,22 +1,20 @@
 import uuid
 from datetime import datetime
 
-from sqlalchemy import Column, String, Integer, Text, DateTime, ForeignKey
+from sqlalchemy import Column, Integer, Text, DateTime
 from sqlalchemy.dialects.postgresql import UUID, JSONB, ENUM
 
 from app.core.database import Base
-from app.core.constants import LLMProvider, AIRunStatus
 
-# PostgreSQL ENUM types with schema
-llm_provider_enum = ENUM('openai', 'gemini', 'anthropic', name='llmprovider', schema='integration', create_type=False)
-ai_run_status_enum = ENUM('pending', 'completed', 'failed', name='airunstatus', schema='integration', create_type=False)
+# PostgreSQL ENUM types
+llm_provider_enum = ENUM('openai', 'gemini', 'anthropic', name='llmprovider', create_type=False)
+ai_run_status_enum = ENUM('pending', 'completed', 'failed', name='airunstatus', create_type=False)
 
 
 class AIRun(Base):
     """Model for logging AI interactions to integration.ai_runs table."""
     
     __tablename__ = "ai_runs"
-    __table_args__ = {"schema": "integration"}
     
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     user_id = Column(UUID(as_uuid=True), nullable=False, index=True)
