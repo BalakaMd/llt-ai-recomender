@@ -16,10 +16,10 @@ from app.services.prompt_templates import (
 
 class PromptBuilder:
     """Builder for LLM prompts with language and currency support."""
-    
+
     DEFAULT_LANGUAGE = "Ukrainian"
     DEFAULT_CURRENCY = "UAH"
-    
+
     @staticmethod
     def build_recommendation_prompt(
         preferences: Dict[str, Any],
@@ -30,24 +30,24 @@ class PromptBuilder:
         currency: str = DEFAULT_CURRENCY,
     ) -> Dict[str, str]:
         """Build system and user prompts for itinerary generation."""
-        
+
         # Format weather context
         weather_context = ""
         if weather and weather.get("forecast"):
             weather_context = f"\nWEATHER FORECAST for {weather.get('city', 'destination')}:\n{json.dumps(weather['forecast'], ensure_ascii=False, indent=2)}"
-        
+
         # Format POIs context
         pois_context = ""
         if pois:
             pois_context = f"\nAVAILABLE PLACES (Points of Interest):\n{json.dumps(pois[:15], ensure_ascii=False, indent=2)}"
-        
+
         json_schema = RECOMMENDATION_SYSTEM_JSON_SCHEMA.format(currency=currency)
         system_prompt = RECOMMENDATION_SYSTEM_PROMPT.format(
             language=language,
             currency=currency,
             json_schema=json_schema,
         )
-        
+
         user_prompt = RECOMMENDATION_USER_PROMPT.format(
             interests=", ".join(preferences.get("interests", [])),
             transport_modes=", ".join(preferences.get("transport_modes", ["walking"])),
@@ -62,9 +62,9 @@ class PromptBuilder:
             pois_context=pois_context,
             language=language,
         )
-        
+
         return {"system": system_prompt, "user": user_prompt}
-    
+
     @staticmethod
     def build_explain_prompt(
         trip_plan: Dict[str, Any],
@@ -72,22 +72,22 @@ class PromptBuilder:
         language: str = DEFAULT_LANGUAGE,
     ) -> Dict[str, str]:
         """Build prompts for explaining a trip plan."""
-        
+
         question_context = f"USER QUESTION: {question}" if question else "Provide a general explanation of the itinerary."
-        
+
         system_prompt = EXPLAIN_SYSTEM_PROMPT.format(
             language=language,
             json_schema=EXPLAIN_SYSTEM_PROMPT_JSON_SCHEMA,
         )
-        
+
         user_prompt = EXPLAIN_USER_PROMPT.format(
             trip_plan=json.dumps(trip_plan, ensure_ascii=False, indent=2),
             question_context=question_context,
             language=language,
         )
-        
+
         return {"system": system_prompt, "user": user_prompt}
-    
+
     @staticmethod
     def build_improve_prompt(
         current_plan: Dict[str, Any],
@@ -97,18 +97,18 @@ class PromptBuilder:
         currency: str = DEFAULT_CURRENCY,
     ) -> Dict[str, str]:
         """Build prompts for improving a trip plan."""
-        
+
         constraints_context = ""
         if constraints:
-            constraints_context = f"\nNEW CONSTRAINTS:\n{json.dumps(constraints, ensure_ascii=False, indent=2)}"
-        
+            constraints_context = f"\nNEW CONSTRAINTS:\n{json.dumps(constraints, ensure_ascii=False, indent=2, default=str)}"
+
         json_schema = IMPROVE_SYSTEM_PROMPT_JSON_SCHEMA.format(currency=currency)
         system_prompt = IMPROVE_SYSTEM_PROMPT.format(
             language=language,
             currency=currency,
             json_schema=json_schema,
         )
-        
+
         user_prompt = IMPROVE_USER_PROMPT.format(
             current_plan=json.dumps(current_plan, ensure_ascii=False, indent=2),
             improvement_request=improvement_request,
@@ -116,5 +116,5 @@ class PromptBuilder:
             language=language,
             currency=currency,
         )
-        
+
         return {"system": system_prompt, "user": user_prompt}
