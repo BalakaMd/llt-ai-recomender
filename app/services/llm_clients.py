@@ -24,7 +24,19 @@ class OpenAIClient(BaseLLMClient):
         self.model = model
 
     async def generate(self, system_prompt: str, user_prompt: str, json_schema: Optional[Dict[str, Any]] = None) -> Tuple[str, int]:
-        response_format = {
+        messages = [
+            {"role": "system", "content": system_prompt},
+            {"role": "user", "content": user_prompt}
+        ]
+        
+        kwargs = {
+            "model": self.model,
+            "messages": messages,
+            "temperature": 0.7,
+        }
+        
+        if json_schema:
+            kwargs["response_format"] = {
                 "type": "json_schema",
                 "json_schema": {
                     "name": "response",
@@ -32,15 +44,7 @@ class OpenAIClient(BaseLLMClient):
                 }
             }
 
-        response = await self.client.chat.completions.create(
-            model=self.model,
-            messages=[  # type: ignore[list-item]
-                {"role": "system", "content": system_prompt},
-                {"role": "user", "content": user_prompt}
-            ],
-            response_format=response_format, # type: ignore
-            temperature=0.7,
-        )
+        response = await self.client.chat.completions.create(**kwargs)
         content = response.choices[0].message.content
         tokens = response.usage.total_tokens if response.usage else 0
         return content, tokens
@@ -59,7 +63,11 @@ class GeminiClient(BaseLLMClient):
 
     async def generate(self, system_prompt: str, user_prompt: str, json_schema: Optional[Dict[str, Any]] = None) -> Tuple[str, int]:
         import json
-        full_prompt = f"{system_prompt}\n\n{user_prompt},\n\nJSON SCHEMA: {json.dumps(json_schema, ensure_ascii=False, indent=2)}"
+        
+        full_prompt = f"{system_prompt}\n\n{user_prompt}"
+        if json_schema:
+            full_prompt += f"\n\nYou MUST respond with valid JSON matching this exact schema:\n{json.dumps(json_schema, ensure_ascii=False, indent=2)}\n\nRespond with JSON only, no additional text."
+        
         response = await self.model.generate_content_async(full_prompt)
         return response.text, 0
 
@@ -76,7 +84,7 @@ class AnthropicClient(BaseLLMClient):
         import json
         full_system_prompt = system_prompt
         if json_schema:
-            full_system_prompt += f"\n\nYou MUST respond with valid JSON matching this schema:\n{json.dumps(json_schema, ensure_ascii=False, indent=2)}"
+            full_system_prompt += f"\n\nYou MUST respond with valid JSON matching this exact schema:\n{json.dumps(json_schema, ensure_ascii=False, indent=2)}\n\nRespond with JSON only, no additional text or explanations."
 
         response = await self.client.messages.create(
             model=self.model,

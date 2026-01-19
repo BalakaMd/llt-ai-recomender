@@ -58,21 +58,25 @@ class LLMEngine:
             Tuple of (TripPlan, tokens_used)
         """
         last_error = None
+        json_schema = TripPlan.model_json_schema()
 
         for attempt in range(self.max_retries + 1):
             content = None
             try:
-                content, tokens = await self.client.generate(system_prompt, user_prompt)
+                content, tokens = await self.client.generate(system_prompt, user_prompt, json_schema)
+                
+                # Clean the JSON response
+                cleaned_content = self._clean_json_response(content)
 
                 # Parse and validate response
-                trip_plan = TripPlan.model_validate_json(content)
+                trip_plan = TripPlan.model_validate_json(cleaned_content)
                 return trip_plan, tokens
 
             except ValidationError as e:
                 last_error = e
                 if attempt < self.max_retries:
                     # Add error context to prompt for self-correction
-                    user_prompt = self._build_correction_prompt(content, str(e))
+                    user_prompt = self._build_correction_prompt(cleaned_content if 'cleaned_content' in locals() else content, str(e))
                     continue
 
             except json.JSONDecodeError as e:
@@ -89,8 +93,10 @@ class LLMEngine:
         user_prompt: str,
     ) -> Tuple[ExplainResponse, int]:
         """Generate explanation for a trip plan."""
-        content, tokens = await self.client.generate(system_prompt, user_prompt)
-        response = ExplainResponse.model_validate_json(content)
+        json_schema = ExplainResponse.model_json_schema()
+        content, tokens = await self.client.generate(system_prompt, user_prompt, json_schema)
+        cleaned_content = self._clean_json_response(content)
+        response = ExplainResponse.model_validate_json(cleaned_content)
         return response, tokens
 
     async def generate_improvement(
@@ -99,9 +105,42 @@ class LLMEngine:
         user_prompt: str,
     ) -> Tuple[ImproveResponse, int]:
         """Generate improved trip plan."""
-        content, tokens = await self.client.generate(system_prompt, user_prompt)
-        response = ImproveResponse.model_validate_json(content)
+        json_schema = ImproveResponse.model_json_schema()
+        content, tokens = await self.client.generate(system_prompt, user_prompt, json_schema)
+        cleaned_content = self._clean_json_response(content)
+        response = ImproveResponse.model_validate_json(cleaned_content)
         return response, tokens
+
+    @staticmethod
+    def _clean_json_response(content: str) -> str:
+        """Clean common JSON formatting issues."""
+        if not content:
+            return content
+            
+        # Remove markdown code blocks
+        content = content.strip()
+        if content.startswith("```json"):
+            content = content[7:]
+        if content.startswith("```"):
+            content = content[3:]
+        if content.endswith("```"):
+            content = content[:-3]
+            
+        # Remove leading/trailing whitespace
+        content = content.strip()
+        
+        # Try to fix common issues
+        # Remove any text before first {
+        first_brace = content.find('{')
+        if first_brace > 0:
+            content = content[first_brace:]
+            
+        # Remove any text after last }
+        last_brace = content.rfind('}')
+        if last_brace > 0 and last_brace < len(content) - 1:
+            content = content[:last_brace + 1]
+            
+        return content
 
     @staticmethod
     def _build_correction_prompt(invalid_response: str, error: str) -> str:
