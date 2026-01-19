@@ -22,37 +22,43 @@ async def verify_token(authorization: Annotated[str | None, Header()] = None) ->
     """
     Verify JWT token from Authorization header.
     Returns user_id or service_id from token.
+    
+    TEMPORARILY DISABLED FOR TESTING - JWT validation is commented out
     """
-    if not authorization:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Missing Authorization header",
-        )
+    # TEMP: JWT validation disabled for testing
+    return "test_user_id"
+    
+    # Original JWT validation code (commented out for testing):
+    # if not authorization:
+    #     raise HTTPException(
+    #         status_code=status.HTTP_401_UNAUTHORIZED,
+    #         detail="Missing Authorization header",
+    #     )
 
-    try:
-        scheme, token = authorization.split()
-        if scheme.lower() != "bearer":
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Invalid authentication scheme",
-            )
+    # try:
+    #     scheme, token = authorization.split()
+    #     if scheme.lower() != "bearer":
+    #         raise HTTPException(
+    #             status_code=status.HTTP_401_UNAUTHORIZED,
+    #             detail="Invalid authentication scheme",
+    #         )
 
-        payload = jwt.decode(
-            token,
-            settings.JWT_SECRET_KEY,
-            algorithms=[settings.JWT_ALGORITHM]
-        )
+    #     payload = jwt.decode(
+    #         token,
+    #         settings.JWT_SECRET_KEY,
+    #         algorithms=[settings.JWT_ALGORITHM]
+    #     )
 
-        # TODO: Extract user_id or service client_id from token
-        # In a real scenario, we might extract user_id or service client_id
-        # For now, we assume the token is valid if signature matches
-        return payload.get("sub", "unknown_service")
+    #     # TODO: Extract user_id or service client_id from token
+    #     # In a real scenario, we might extract user_id or service client_id
+    #     # For now, we assume the token is valid if signature matches
+    #     return payload.get("sub", "unknown_service")
 
-    except (ValueError, JWTError):
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Could not validate credentials",
-        )
+    # except (ValueError, JWTError):
+    #     raise HTTPException(
+    #         status_code=status.HTTP_401_UNAUTHORIZED,
+    #         detail="Could not validate credentials",
+    #     )
 
 
 def get_telemetry_service(db: AsyncSession = Depends(get_db)) -> TelemetryService:

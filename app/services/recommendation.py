@@ -51,15 +51,14 @@ class RecommendationService:
             )
             pois = await self.integration.search_pois(city=city, interests=interests)
             
-            # TODO Get language and currency from request/user_profile
             # 3. Build Prompts
             prompts = PromptBuilder.build_recommendation_prompt(
                 preferences=request.user_profile.model_dump(),
                 constraints=request.constraints.model_dump(),
                 weather=weather,
                 pois=pois,
-                language="Ukrainian",
-                currency="UAH"
+                language=request.language,
+                currency=request.currency
             )
             
             # 4. Generate with LLM

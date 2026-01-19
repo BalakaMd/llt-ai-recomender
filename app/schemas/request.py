@@ -104,6 +104,16 @@ class RecommendationRequest(BaseModel):
         description="User timezone",
         examples=["Europe/Kyiv"]
     )
+    currency: str = Field(
+        default="UAH",
+        description="Currency code for budget (e.g., USD, EUR, UAH)",
+        examples=["USD", "EUR", "UAH"]
+    )
+    language: str = Field(
+        default="Ukrainian",
+        description="Language for the response (e.g., English, Ukrainian, Czech)",
+        examples=["English", "Ukrainian", "Czech"]
+    )
     
     model_config = {
         "json_schema_extra": {
@@ -122,7 +132,9 @@ class RecommendationRequest(BaseModel):
                         "total_budget": 15000,
                         "travel_party_size": 2
                     },
-                    "timezone": "Europe/Kyiv"
+                    "timezone": "Europe/Kyiv",
+                    "currency": "UAH",
+                    "language": "Ukrainian"
                 }
             ]
         }
